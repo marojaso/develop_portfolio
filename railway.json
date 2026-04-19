@@ -1,0 +1,12 @@
+{
+  "build": {
+    "builder": "NIXPACKS_PHP_VERSION=81"
+  },
+  "start": {
+    "cmd": "php artisan serve --host=0.0.0.0 --port=$PORT"
+  },
+  "env": {
+    "APP_KEY": "base64:d4B9WG8IYNtQSuCtHMQFgJmcvxBzWfuVye8grBA56mw=",
+    "APP_ENV": "production"
+  }
+}
