@@ -1,14 +1,8 @@
 #!/bin/bash
 set -e
 
-# Install composer if not available
-if ! command -v composer &> /dev/null; then
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-fi
-
+cd /var/www
 composer install --optimize-autoloader --no-dev
-
 php artisan migrate --force
-
-npm install
-npm run build
+php artisan config:cache
+php artisan route:cache

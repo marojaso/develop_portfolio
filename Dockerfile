@@ -1,8 +1,9 @@
-FROM php:8.1-cli
+FROM php:8.1-apache
 
-WORKDIR /var/www
+# Enable mod_rewrite
+RUN a2enmod rewrite
 
-# Install system dependencies
+# Install PHP extensions and system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -11,26 +12,25 @@ RUN apt-get update && apt-get install -y \
     libxml-dev \
     zip \
     unzip \
-    nodejs \
-    npm
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath
+    && docker-php-ext-install pdo_mysql pdo mbstring exif pcntl bcmath
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy application files
-COPY . .
+# Copy application
+COPY . /var/www/
+
+# Set permissions
+RUN chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
 # Install dependencies
-RUN composer install --optimize-autoloader --no-dev
+RUN cd /var/www && composer install --optimize-autoloader --no-dev
 
-# Build assets
-RUN npm install && npm run build
+# Configure Apache
+RUN echo "<Directory /var/www/>" > /etc/apache2/sites-available/000-default.conf && \
+    echo "    Options Indexes FollowSymLinks" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "    AllowOverride All" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "    Require all granted" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "</Directory>" >> /etc/apache2/sites-available/000-default.conf
 
-# Expose port
-EXPOSE 8000
-
-# Start Laravel
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+WORKDIR /var/www
