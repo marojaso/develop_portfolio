@@ -1,0 +1,25 @@
+databases:
+  - name: portfolio_db
+    plan: free
+    mysqlDatabase: portfolio
+    mysqlHost: localhost
+
+services:
+  - type: web
+    name: portfolio
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: DB_HOST
+        value: localhost
+      - key: DB_DATABASE
+        value: portfolio
+      - key: DB_USERNAME
+        value: render_user
+      - key: DB_PASSWORD
+        value: changeme
